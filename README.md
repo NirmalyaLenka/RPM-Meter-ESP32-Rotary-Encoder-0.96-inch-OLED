@@ -14,7 +14,8 @@ Hardware
 
 - 0.96-inch OLED display, SSD1306 controller, I2C interface <img width="240" height="240" alt="image" src="https://github.com/user-attachments/assets/017366d4-8f3e-4140-93d1-3aadd69ab63c" />
 
-- Breadboard and jumper wires
+- Breadboard and jumper wires <img width="474" height="474" alt="image" src="https://github.com/user-attachments/assets/e19482a3-384f-4623-b601-3e28916d57e6" />
+
 
 Software
 
