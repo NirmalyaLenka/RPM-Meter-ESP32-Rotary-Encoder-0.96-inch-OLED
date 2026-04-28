@@ -10,7 +10,8 @@ This project is deliberately kept simple so it is easy to adapt. All the paramet
 Hardware
 
 - ESP32 development board (any 38-pin or 30-pin variant works)
-- Rotary encoder module (KY-040, or a bare encoder disc with IR sensor)
+- Rotary encoder module (KY-040, or a bare encoder disc with IR sensor) <img width="254" height="254" alt="image" src="https://github.com/user-attachments/assets/c5be11cf-42d1-4a18-b2eb-64c064b74582" />
+
 - 0.96-inch OLED display, SSD1306 controller, I2C interface
 - Breadboard and jumper wires
 
