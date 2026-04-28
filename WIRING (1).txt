@@ -1,0 +1,50 @@
+RPM Meter — Wiring Reference
+=============================
+
+                          ESP32 Dev Board
+                    ┌──────────────────────────┐
+                    │                          │
+    Encoder VCC ────┤ 3V3                 GND  ├──── Encoder GND
+    Encoder GND ────┤ GND                      │
+    Encoder CLK ────┤ GPIO 34 (INPUT_PULLUP)   │
+    Encoder DT  ────┤ GPIO 35 (INPUT_PULLUP)   │
+                    │                          │
+       OLED SDA ────┤ GPIO 21 (I2C SDA)        │
+       OLED SCL ────┤ GPIO 22 (I2C SCL)        │
+       OLED VCC ────┤ 3V3                      │
+       OLED GND ────┤ GND                      │
+                    │                          │
+                    └──────────────────────────┘
+
+
+Component Notes
+---------------
+
+Rotary Encoder (Generic KY-040 or bare optical disc module)
+  - CLK = Channel A. This is the interrupt pin. Count rising edges.
+  - DT  = Channel B. Sampled at the moment of CLK rising edge
+           to determine rotation direction.
+  - SW  = Push-button switch (optional, not used in this project).
+  - The ESP32 internal pull-up is enabled. If your encoder module
+    already has 10k pull-ups on-board (KY-040 does), that is fine —
+    the two pull-ups in parallel just lower the effective resistance
+    slightly, which causes no harm.
+
+OLED Display (0.96-inch SSD1306, I2C interface)
+  - Default I2C address: 0x3C
+  - If nothing appears, try 0x3D (solder the A0 jumper on the back
+    of some modules to switch addresses).
+  - Wire length: keep I2C wires under 30 cm for reliable operation.
+    If you must go longer, lower the I2C clock speed in code:
+      Wire.setClock(100000);  // 100 kHz instead of default 400 kHz
+
+Power Supply
+  - The ESP32 dev board is powered via USB (5V).
+  - The 3V3 regulator on-board supplies both the encoder and OLED.
+  - Total current draw of the project: under 80 mA, well within limits.
+  - Do NOT connect 5V directly to encoder or OLED pins — both are
+    3.3V logic devices.
+
+
+Fritzing / KiCad schematics are available in the /schematics folder
+(see the repository for the full Fritzing .fzz file).

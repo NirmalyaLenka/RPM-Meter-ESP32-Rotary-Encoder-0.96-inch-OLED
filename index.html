@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPM Meter — Component Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0c0e12;
+    --surface:  #13161d;
+    --panel:    #191d27;
+    --border:   #252a38;
+    --border2:  #2e3448;
+    --accent:   #4af0c4;
+    --accent2:  #f0a84a;
+    --accent3:  #f05a7a;
+    --text:     #d4d8e8;
+    --muted:    #6b7399;
+    --mono:     'IBM Plex Mono', monospace;
+    --serif:    'Fraunces', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── Scrollbar ─────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ── Navigation ────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(12,14,18,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    height: 52px;
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-right: auto;
+    white-space: nowrap;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 14px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  nav a:hover { color: var(--accent); }
+  nav a.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+
+  /* ── Hero ──────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 2rem 4rem;
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+  }
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 5px 14px;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+  .chip.accent { border-color: var(--accent); color: var(--accent); }
+
+  /* Animated circuit lines in hero */
+  .circuit-bg {
+    position: absolute;
+    top: 0; right: -100px; bottom: 0;
+    width: 450px;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  /* ── Section layout ────────────────────────── */
+  section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: #fff;
+    letter-spacing: -0.025em;
+    margin-bottom: 2.5rem;
+  }
+  .section-lead {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.9;
+    margin-bottom: 3rem;
+  }
+
+  /* ── Component tabs ────────────────────────── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+    overflow-x: auto;
+    gap: 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Component card ────────────────────────── */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 600px) { .comp-grid { grid-template-columns: 1fr; } }
+
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .comp-card:hover { border-color: var(--border2); }
+  .comp-card-title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .comp-card-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .green .dot { background: var(--accent); }
+  .red .dot   { background: var(--accent3); }
+
+  .comp-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comp-card ul li {
+    font-size: 13px;
+    color: var(--text);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .comp-card ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  /* ── Principle block ───────────────────────── */
+  .principle-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .principle-block h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+  .principle-block p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 1rem;
+  }
+  .principle-block p:last-child { margin-bottom: 0; }
+
+  /* ── Code block ────────────────────────────── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    font-size: 12px;
+    color: var(--accent);
+    line-height: 1.8;
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+  .code-block .comment { color: var(--muted); }
+  .code-block .kw { color: var(--accent2); }
+  .code-block .val { color: var(--accent3); }
+
+  /* ── Signal diagram (animated) ─────────────── */
+  .signal-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .signal-title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+  .signal-svg { width: 100%; display: block; }
+
+  /* ── Flow diagram ──────────────────────────── */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+  .flow-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 18px;
+    font-size: 12px;
+    text-align: center;
+    min-width: 90px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: default;
+  }
+  .flow-step:hover {
+    border-color: var(--accent);
+    background: rgba(74,240,196,0.04);
+  }
+  .flow-step .step-num {
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--border2);
+    padding: 0 6px;
+  }
+
+  /* ── Future scope cards ────────────────────── */
+  .scope-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .scope-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.25s, transform 0.2s;
+    cursor: default;
+  }
+  .scope-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-2px);
+  }
+  .scope-card .scope-num {
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+  }
+  .scope-card h4 {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+  .scope-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ── Spec table ────────────────────────────── */
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 1.5rem;
+  }
+  .spec-table th, .spec-table td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .spec-table th {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface);
+  }
+  .spec-table td:first-child { color: var(--muted); }
+  .spec-table td:last-child { color: var(--accent); }
+  .spec-table tr:hover td { background: var(--surface); }
+
+  /* ── Thank you ─────────────────────────────── */
+  .thankyou {
+    text-align: center;
+    padding: 6rem 2rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .thankyou-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--accent);
+    margin: 0 auto 2.5rem;
+  }
+  .thankyou h2 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+  }
+  .thankyou p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 2;
+    margin-bottom: 1.5rem;
+  }
+  .thankyou-sig {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--accent);
+    margin-top: 2rem;
+  }
+
+  /* ── Footer ────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 2rem;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Animations ────────────────────────────── */
+  @keyframes dash { to { stroke-dashoffset: -24; } }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fadein { animation: fadeUp 0.5s ease both; }
+
+  .live-line {
+    stroke-dasharray: 6 6;
+    animation: dash 0.6s linear infinite;
+  }
+  .live-line-slow {
+    stroke-dasharray: 6 6;
+    animation: dash 1.1s linear infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <span class="nav-logo">RPM Meter</span>
+  <a href="#overview" class="active">Overview</a>
+  <a href="#components">Components</a>
+  <a href="#principle">How it works</a>
+  <a href="#scope">Future scope</a>
+  <a href="#thanks">Credits</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero" id="overview">
+  <svg class="circuit-bg" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="40" y1="0" x2="40" y2="600" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="120" y1="0" x2="120" y2="600" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="200" y1="0" x2="200" y2="600" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="280" y1="0" x2="280" y2="600" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="0" y1="80" x2="400" y2="80" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="0" y1="200" x2="400" y2="200" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="0" y1="350" x2="400" y2="350" stroke="#4af0c4" stroke-width="1"/>
+    <line x1="0" y1="480" x2="400" y2="480" stroke="#4af0c4" stroke-width="1"/>
+    <circle cx="40" cy="80" r="5" fill="#4af0c4"/>
+    <circle cx="120" cy="200" r="5" fill="#4af0c4"/>
+    <circle cx="200" cy="80" r="5" fill="#4af0c4"/>
+    <circle cx="280" cy="350" r="5" fill="#4af0c4"/>
+    <circle cx="120" cy="350" r="3" stroke="#4af0c4" stroke-width="1" fill="none"/>
+    <circle cx="200" cy="480" r="3" stroke="#4af0c4" stroke-width="1" fill="none"/>
+    <rect x="155" y="170" width="90" height="60" stroke="#4af0c4" stroke-width="1" fill="none"/>
+    <rect x="55" y="300" width="50" height="30" stroke="#4af0c4" stroke-width="1" fill="none"/>
+    <rect x="230" y="420" width="70" height="40" stroke="#4af0c4" stroke-width="1" fill="none"/>
+  </svg>
+
+  <div class="hero-tag">Technical Documentation</div>
+  <h1>Measuring rotation<br>with <em>precision.</em></h1>
+  <p>
+    A complete guide to the ESP32-based RPM meter — how each component works,
+    why it was chosen, its limits, and where this project can go next.
+    Built with a rotary encoder for sensing and a 0.96-inch SSD1306 OLED for display.
+  </p>
+  <div class="hero-chips">
+    <span class="chip accent">ESP32</span>
+    <span class="chip">Rotary Encoder</span>
+    <span class="chip">SSD1306 OLED</span>
+    <span class="chip">I2C</span>
+    <span class="chip">Interrupt-driven</span>
+    <span class="chip">Arduino / C++</span>
+  </div>
+</div>
+
+<!-- Components Section -->
+<section id="components">
+  <div class="section-label">01 — Components</div>
+  <div class="section-title">Three parts,<br>one measurement.</div>
+  <p class="section-lead">
+    Click a component to explore how it works, what it does well,
+    and where it falls short.
+  </p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('esp32', this)">ESP32</button>
+    <button class="tab-btn" onclick="switchTab('encoder', this)">Rotary Encoder</button>
+    <button class="tab-btn" onclick="switchTab('oled', this)">SSD1306 OLED</button>
+  </div>
+
+  <!-- ESP32 Panel -->
+  <div class="tab-panel active" id="tab-esp32">
+    <div class="principle-block">
+      <h3>What is the ESP32?</h3>
+      <p>
+        The ESP32 is a dual-core 32-bit microcontroller made by Espressif Systems.
+        It runs at up to 240 MHz, has 520 KB of SRAM, and integrates Wi-Fi and Bluetooth
+        radios on the same die. For this project, the key capability is its
+        interrupt system: any GPIO pin can be configured to call a function instantly
+        when it detects a rising or falling edge, without the main code needing to poll it.
+      </p>
+      <p>
+        The ISR (Interrupt Service Routine) used for pulse counting is placed in IRAM —
+        a section of fast on-chip memory — so it executes within a few nanoseconds of the
+        edge event, ensuring no pulses are ever missed even at high shaft speeds.
+      </p>
+      <div class="code-block">
+<span class="comment">// ESP32 IRAM-resident ISR — executes in fast memory</span>
+<span class="kw">void</span> IRAM_ATTR encoderISR() {
+  pulseCount++;
+  dirForward = (digitalRead(ENCODER_DT) == <span class="val">HIGH</span>);
+}
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Specification</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>CPU cores</td><td>2x Xtensa LX6 @ 240 MHz</td></tr>
+        <tr><td>SRAM</td><td>520 KB</td></tr>
+        <tr><td>Flash</td><td>4 MB (module dependent)</td></tr>
+        <tr><td>GPIO count</td><td>34 usable</td></tr>
+        <tr><td>I2C interfaces</td><td>2</td></tr>
+        <tr><td>Supply voltage</td><td>3.0 – 3.6 V</td></tr>
+        <tr><td>Interrupt latency</td><td>~150 ns (IRAM ISR)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="comp-grid">
+      <div class="comp-card green">
+        <div class="comp-card-title green"><span class="dot"></span>Advantages</div>
+        <ul>
+          <li>Extremely fast GPIO interrupt response makes high-PPR encoders viable without missing pulses</li>
+          <li>Dual-core architecture means a heavy display update cannot block the counting ISR</li>
+          <li>Built-in Wi-Fi and Bluetooth are available for free if you want to stream RPM data over a network</li>
+          <li>Abundant community resources, libraries, and tutorials</li>
+          <li>Very affordable — under $5 for a complete development board</li>
+          <li>Deep sleep modes allow battery-powered installations to last much longer</li>
+        </ul>
+      </div>
+      <div class="comp-card red">
+        <div class="comp-card-title red"><span class="dot"></span>Disadvantages</div>
+        <ul>
+          <li>GPIO 6–11 are internally connected to the flash chip and cannot be used for general I/O</li>
+          <li>All GPIO operate at 3.3 V logic; 5 V signals from older encoder modules need a level shifter</li>
+          <li>ADC accuracy is poor when Wi-Fi is active (not relevant here, but worth knowing)</li>
+          <li>No hardware floating-point division — RPM formula uses a tiny amount of software FPU time</li>
+          <li>Higher idle power draw compared to AVR-based boards if battery life matters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encoder Panel -->
+  <div class="tab-panel" id="tab-encoder">
+    <div class="principle-block">
+      <h3>How a rotary encoder works</h3>
+      <p>
+        An incremental rotary encoder converts shaft rotation into a sequence of electrical pulses.
+        The most common low-cost variant used in hobby projects is the optical slot encoder:
+        a disc with evenly-spaced holes or slots rotates between an infrared LED and a photodetector.
+        Each time a hole passes the beam, the photodetector output switches state, generating one pulse.
+        The number of pulses per revolution is fixed by the number of slots in the disc (PPR).
+      </p>
+      <p>
+        Quadrature encoders produce two channels — A and B — 90 degrees out of phase with each other.
+        By checking which channel leads the other at the moment of a rising edge, direction of rotation
+        can be determined unambiguously. This project reads direction from channel B at each rising edge of channel A.
+      </p>
+    </div>
+
+    <div class="signal-wrap">
+      <div class="signal-title">Quadrature output — clockwise rotation</div>
+      <svg class="signal-svg" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Channel A -->
+        <text x="8" y="26" font-family="IBM Plex Mono" font-size="10" fill="#6b7399">CH A</text>
+        <polyline points="50,40 50,15 120,15 120,40 190,40 190,15 260,15 260,40 330,40 330,15 400,15 400,40 470,40 470,15 540,15 540,40 610,40"
+                  fill="none" stroke="#4af0c4" stroke-width="1.5"/>
+        <!-- Channel B (90 deg lag) -->
+        <text x="8" y="86" font-family="IBM Plex Mono" font-size="10" fill="#6b7399">CH B</text>
+        <polyline points="50,100 85,100 85,75 155,75 155,100 225,100 225,75 295,75 295,100 365,100 365,75 435,75 435,100 505,100 505,75 575,75 575,100 610,100"
+                  fill="none" stroke="#f0a84a" stroke-width="1.5"/>
+        <!-- Rising edge markers on A -->
+        <line x1="50"  y1="8" x2="50"  y2="50" stroke="#4af0c4" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="190" y1="8" x2="190" y2="50" stroke="#4af0c4" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="330" y1="8" x2="330" y2="50" stroke="#4af0c4" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="470" y1="8" x2="470" y2="50" stroke="#4af0c4" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.5"/>
+        <!-- Labels -->
+        <text x="52"  y="9" font-family="IBM Plex Mono" font-size="9" fill="#4af0c4">+1</text>
+        <text x="192" y="9" font-family="IBM Plex Mono" font-size="9" fill="#4af0c4">+1</text>
+        <text x="332" y="9" font-family="IBM Plex Mono" font-size="9" fill="#4af0c4">+1</text>
+        <text x="472" y="9" font-family="IBM Plex Mono" font-size="9" fill="#4af0c4">+1</text>
+        <!-- Note -->
+        <text x="8" y="115" font-family="IBM Plex Mono" font-size="9" fill="#6b7399">At each rising edge of A: B is LOW → clockwise. If B were HIGH → counter-clockwise.</text>
+      </svg>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Specification</th><th>Typical value (KY-040 / IR disc)</th></tr></thead>
+      <tbody>
+        <tr><td>PPR (slots/holes)</td><td>20 (IR disc), 20–600 (optical)</td></tr>
+        <tr><td>Max shaft speed</td><td>Up to ~3000 RPM before signal noise</td></tr>
+        <tr><td>Output type</td><td>Open collector / TTL 3.3 V</td></tr>
+        <tr><td>Supply voltage</td><td>3.3 – 5 V (KY-040 module)</td></tr>
+        <tr><td>Direction detection</td><td>Yes (quadrature, 2-channel)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="comp-grid">
+      <div class="comp-card green">
+        <div class="comp-card-title green"><span class="dot"></span>Advantages</div>
+        <ul>
+          <li>Non-contact sensing — the disc never touches the sensor, giving very long mechanical life</li>
+          <li>Absolute repeatability — each slot is the same width, so PPR is constant across the entire speed range</li>
+          <li>Direction detection with just two pins using the quadrature technique</li>
+          <li>No calibration needed once PPR is set in firmware</li>
+          <li>Low-cost slot disc modules are available for under $2</li>
+        </ul>
+      </div>
+      <div class="comp-card red">
+        <div class="comp-card-title red"><span class="dot"></span>Disadvantages</div>
+        <ul>
+          <li>Minimum measurable RPM is limited by the sample window — at very low speeds, few pulses arrive in 200 ms</li>
+          <li>Slot discs are susceptible to dust and oil contamination blocking the IR beam</li>
+          <li>Contact encoders (like KY-040) exhibit mechanical bounce, requiring debounce logic or filtering</li>
+          <li>Resolution is fixed by disc geometry — you cannot increase PPR without changing the hardware</li>
+          <li>Mis-alignment of the disc on the shaft introduces periodic errors in the pulse spacing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OLED Panel -->
+  <div class="tab-panel" id="tab-oled">
+    <div class="principle-block">
+      <h3>SSD1306 OLED display</h3>
+      <p>
+        The SSD1306 is a single-chip CMOS OLED driver controller produced by Solomon Systech.
+        It manages a 128x64 matrix of organic light-emitting pixels. Unlike LCD panels, OLED
+        pixels emit their own light, so there is no backlight. Black pixels consume no power at all,
+        and white pixels produce a bright, high-contrast image visible in direct sunlight or darkness alike.
+      </p>
+      <p>
+        Communication happens over I2C using just two wires (SDA and SCL). The Adafruit SSD1306 library
+        maintains a 1 KB frame buffer in the ESP32's SRAM. Drawing calls (text, lines, rectangles)
+        modify this buffer. Calling display.display() pushes the entire buffer to the controller
+        over I2C in one shot, which at 400 kHz I2C clock takes about 3 milliseconds.
+      </p>
+      <div class="code-block">
+<span class="comment">// Buffer → display transfer happens here</span>
+<span class="kw">void</span> drawRPMScreen(<span class="kw">float</span> rpmVal) {
+  display.clearDisplay();       <span class="comment">// wipe buffer (fast, in SRAM)</span>
+  display.setTextSize(<span class="val">3</span>);
+  display.setCursor(<span class="val">30</span>, <span class="val">16</span>);
+  display.print((<span class="kw">int</span>)rpmVal);  <span class="comment">// write to buffer</span>
+  display.display();            <span class="comment">// push buffer over I2C (~3 ms)</span>
+}
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Specification</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Resolution</td><td>128 × 64 pixels</td></tr>
+        <tr><td>Controller IC</td><td>SSD1306</td></tr>
+        <tr><td>Interface</td><td>I2C (400 kHz fast-mode)</td></tr>
+        <tr><td>I2C address</td><td>0x3C (default), 0x3D (alt)</td></tr>
+        <tr><td>Supply voltage</td><td>3.3 V (module has on-board regulator)</td></tr>
+        <tr><td>Current (full white)</td><td>~20 mA</td></tr>
+        <tr><td>Viewing angle</td><td>160 degrees</td></tr>
+        <tr><td>OLED lifespan</td><td>~100,000 hours at half brightness</td></tr>
+      </tbody>
+    </table>
+
+    <div class="comp-grid">
+      <div class="comp-card green">
+        <div class="comp-card-title green"><span class="dot"></span>Advantages</div>
+        <ul>
+          <li>Excellent contrast ratio — black pixels are truly off, making text sharply readable</li>
+          <li>Works over a wide temperature range, including cold environments</li>
+          <li>Only two wires needed for the entire display (I2C)</li>
+          <li>Very thin and lightweight at roughly 1 mm panel thickness</li>
+          <li>The Adafruit library is mature, stable, and well documented</li>
+          <li>No backlight means power consumption scales directly with the number of lit pixels</li>
+        </ul>
+      </div>
+      <div class="comp-card red">
+        <div class="comp-card-title red"><span class="dot"></span>Disadvantages</div>
+        <ul>
+          <li>OLED pixels degrade over time — pixels that are always on burn in faster than those that cycle</li>
+          <li>I2C limits update rate — full-frame refresh at 400 kHz takes ~3 ms, meaning a maximum of ~330 frames per second theoretically, but library overhead brings this lower in practice</li>
+          <li>128x64 resolution is limiting for graphical content; suitable for text and simple gauges only</li>
+          <li>Blue OLED variants have a noticeably shorter lifespan than white variants</li>
+          <li>Very small physical size (0.96 inch) makes it difficult to read from more than 50 cm away</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Working Principle Section -->
+<section id="principle">
+  <div class="section-label">02 — Working Principle</div>
+  <div class="section-title">From shaft rotation<br>to a number on screen.</div>
+  <p class="section-lead">
+    The measurement pipeline is five stages. Each stage adds information or converts a signal
+    from one domain to another.
+  </p>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="flow-step"><div class="step-num">01</div>Shaft rotates</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="step-num">02</div>Encoder pulses</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="step-num">03</div>ISR counts</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="step-num">04</div>RPM computed</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="step-num">05</div>OLED displays</div>
+  </div>
+
+  <div class="principle-block">
+    <h3>Stage 1 — Physical rotation</h3>
+    <p>
+      The encoder disc is mounted directly on the rotating shaft. As it turns, the slots in the disc
+      alternately block and unblock the infrared beam between the LED and photodetector.
+      Each unblocked event (rising edge) produces one voltage transition from low to high on the CLK output pin.
+    </p>
+  </div>
+
+  <div class="principle-block">
+    <h3>Stage 2 — Pulse generation and interrupt capture</h3>
+    <p>
+      The CLK pin is connected to GPIO 34 of the ESP32, which is configured with
+      attachInterrupt(RISING). The hardware interrupt controller detects the voltage edge
+      and immediately pauses the main CPU context, jumps to the ISR in IRAM, increments the
+      counter, and resumes normal code execution. The entire interrupt takes under 200 nanoseconds.
+      The DT (Channel B) pin is read at this instant to record direction.
+    </p>
+  </div>
+
+  <div class="principle-block">
+    <h3>Stage 3 — Time-windowed counting</h3>
+    <p>
+      The main loop checks millis() against the last sample timestamp. Every 200 ms
+      (configurable via SAMPLE_MS) it pauses interrupts for a few microseconds, copies the
+      pulse counter to a local variable, resets the counter to zero, and re-enables interrupts.
+      This snapshot approach ensures the counter is never read while the ISR is mid-increment.
+    </p>
+  </div>
+
+  <div class="principle-block">
+    <h3>Stage 4 — RPM calculation and filtering</h3>
+    <p>
+      The formula converts pulses to RPM:
+    </p>
+    <div class="code-block">
+<span class="comment">// Core formula</span>
+RPM = (count / PPR) * (60000 / SAMPLE_MS)
+
+<span class="comment">// count     = pulses measured in this window</span>
+<span class="comment">// PPR       = pulses per revolution (from encoder spec)</span>
+<span class="comment">// SAMPLE_MS = window length in milliseconds</span>
+<span class="comment">// 60000     = milliseconds per minute</span>
+
+<span class="comment">// Exponential moving average (smoothing)</span>
+rpmSmoothed = ALPHA * rawRPM + (<span class="val">1.0</span> - ALPHA) * rpmSmoothed;
+    </div>
+    <p>
+      The exponential moving average filter blends each new raw reading with the previous
+      filtered value. With ALPHA = 0.3, the filter reaches ~95% of a step change in about
+      8 sample windows (1.6 seconds), which feels responsive while eliminating single-sample spikes.
+    </p>
+  </div>
+
+  <div class="principle-block">
+    <h3>Stage 5 — Display refresh</h3>
+    <p>
+      The Adafruit SSD1306 library maintains a 1024-byte (128*64/8) monochrome frame buffer in SRAM.
+      Each call to clearDisplay(), print(), drawRect(), etc. modifies this buffer instantly
+      without touching the display hardware. Only when display.display() is called does the library
+      transfer the entire buffer to the SSD1306 over I2C at 400 kHz. This batched transfer takes
+      about 3 ms and updates the screen in one clean frame with no partial-update flicker.
+    </p>
+    <p>
+      The OLED shows: a large three-digit RPM value, a direction indicator (CW / CCW),
+      a running total revolution counter, and a horizontal bar gauge proportional to RPM_MAX.
+    </p>
+  </div>
+</section>
+
+<!-- Future Scope Section -->
+<section id="scope">
+  <div class="section-label">03 — Future scope</div>
+  <div class="section-title">Where this project<br>can go next.</div>
+  <p class="section-lead">
+    The hardware and firmware described here are a foundation.
+    Each of these extensions adds a meaningful capability without requiring a major redesign.
+  </p>
+
+  <div class="scope-grid">
+    <div class="scope-card">
+      <div class="scope-num">/ 01</div>
+      <h4>Wi-Fi data streaming</h4>
+      <p>
+        The ESP32's built-in Wi-Fi can push RPM readings to an MQTT broker,
+        a web socket, or a REST endpoint. This enables real-time dashboards
+        on a phone or PC with no additional hardware.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 02</div>
+      <h4>Data logging to SD card</h4>
+      <p>
+        Adding an SPI-connected SD card module allows timestamped RPM logs
+        to be written as CSV files and later analysed in Excel or Python
+        for trend analysis and predictive maintenance.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 03</div>
+      <h4>Tachometer alarm thresholds</h4>
+      <p>
+        A configurable over-speed alarm — using a buzzer or LED — can
+        protect machinery from running above a safe RPM limit, turning
+        this from a display device into an active safety instrument.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 04</div>
+      <h4>Larger graphical display</h4>
+      <p>
+        Swapping to a 1.3-inch or 2.42-inch OLED, or a 2.8-inch TFT colour LCD,
+        allows for an analogue needle gauge style display and plots of
+        RPM history — more informative at a glance.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 05</div>
+      <h4>Torque and power estimation</h4>
+      <p>
+        Combined with a current sensor on a motor supply, RPM and current
+        readings can estimate shaft power (P = T x omega) for basic
+        motor efficiency monitoring.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 06</div>
+      <h4>Multi-axis measurement</h4>
+      <p>
+        A second encoder channel and a second ISR enable simultaneous monitoring
+        of two independent shafts — useful for differential drive robots or
+        dual-motor CNC systems.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 07</div>
+      <h4>BLE to mobile app</h4>
+      <p>
+        The Bluetooth Low Energy stack in the ESP32 can broadcast RPM data
+        to a custom mobile application, turning the phone into a wireless
+        dashboard without requiring a Wi-Fi network.
+      </p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-num">/ 08</div>
+      <h4>Closed-loop speed control</h4>
+      <p>
+        Feeding the RPM measurement back to a PID controller and a motor driver
+        converts this from a passive meter into an active regulator that holds
+        a target RPM regardless of load variation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Thank You -->
+<div class="thankyou" id="thanks">
+  <div class="thankyou-rule"></div>
+  <h2>Thank you for building this.</h2>
+  <p>
+    This project started as a simple question — can we measure something rotating
+    with parts that cost less than a cup of tea? The answer, clearly, is yes.
+  </p>
+  <p>
+    Understanding how an interrupt works, why a sampling window matters,
+    and what a low-pass filter actually does to a signal — these are not abstract
+    concepts anymore. They are things you built, touched, and saw working on a tiny
+    screen in your hand.
+  </p>
+  <p>
+    The codebase is intentionally transparent. Every constant has a comment.
+    Every formula is written out. It is meant to be read, modified, and taken apart.
+    If you build something interesting with it — a dynamometer, a motor controller,
+    a vehicle tachometer — the foundation laid here will carry you there.
+  </p>
+  <p>
+    Hardware is patience made visible. Keep building.
+  </p>
+  <div class="thankyou-sig">— RPM Meter Project, 2025</div>
+</div>
+
+<footer>
+  ESP32 RPM Meter — MIT License — github.com/your-username/rpm-meter-esp32
+</footer>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Nav active state on scroll
+  const sections = document.querySelectorAll('section, .hero, .thankyou');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(l => {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+
+  // Fade-in on scroll
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('fadein');
+        fadeObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.comp-card, .principle-block, .scope-card, .spec-table').forEach(el => {
+    el.style.opacity = '0';
+    fadeObserver.observe(el);
+  });
+</script>
+
+</body>
+</html>
