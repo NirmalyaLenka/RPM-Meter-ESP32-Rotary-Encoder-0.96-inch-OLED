@@ -119,6 +119,16 @@ Built with the Adafruit SSD1306 and Adafruit GFX libraries, which take the heavy
 
 ---
 
+## Skills & technologies
+
+`Arduino/C++` · `C/C++` · `HTML/CSS`
+
+
+## How it works
+
+The main firmware sketch is `rpm_encoder_oled.ino`. Open it in Arduino IDE, verify the board, pin mapping and library requirements, then compile and upload. Test hardware behaviour on the real circuit before relying on it.
+
+
 ## Maintenance & Audit
 
 - **Audit date:** 10 November 2026
